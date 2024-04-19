@@ -1,4 +1,4 @@
-const uuidV4 = require('uuid/v4');
+const { v4: uuidV4 } = require('uuid');
 const { BlobSASPermissions, generateBlobSASQueryParameters, SharedKeyCredential } = require('@azure/storage-blob');
 
 const { AZURE_STORAGE_ACCOUNT_KEY, AZURE_STORAGE_ACCOUNT_NAME, AZURE_STORAGE_CONTAINER_NAME } = process.env;
@@ -12,7 +12,7 @@ function pad(value, count = 2, delimiter = '0') {
   return new Array(Math.max(0, count)).fill(delimiter).join('') + value;
 }
 
-module.exports = (_, res) => {
+module.exports = (_, res, next) => {
   // Before issuing a SAS token, you should make sure the client is valid.
   // Giving the SAS token to the client also means they can upload huge file and increase your spending significantly.
   // The other way is to use a proxied connection to Azure Storage, so you can control the size of the upload.
@@ -44,4 +44,6 @@ module.exports = (_, res) => {
     sasQuery: sasQuery.toString(),
     url: `https://${AZURE_STORAGE_ACCOUNT_NAME}.blob.core.windows.net/${AZURE_STORAGE_CONTAINER_NAME}/${blobName}`
   });
+
+  next();
 };

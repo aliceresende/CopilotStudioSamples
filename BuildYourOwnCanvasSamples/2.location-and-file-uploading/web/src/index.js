@@ -2,8 +2,8 @@ require('dotenv').config();
 
 // Setting default environment variables.
 process.env = {
-  AZURE_STORAGE_CONTAINER_NAME: 'userupload',
-  PORT: '5000',
+  AZURE_STORAGE_CONTAINER_NAME: 'uploadithelper',
+  PORT: '5050',
   STATIC_FILES: 'public',
   ...process.env
 };
@@ -32,15 +32,24 @@ server.use(restify.plugins.queryParser());
 // Registering routes.
 server.get('/api/azurestorage/uploadsastoken', require('./routes/azureStorage/uploadSASToken'));
 server.get('/api/directline/token', require('./routes/directLine/token'));
-server.post('/api/messages', require('./routes/botMessages'));
+server.post('/api/messages', async (req, res) => {
+  try {
+      // Your async logic here
+      res.send({ message: 'Message processed' });
+  } catch (error) {
+      next(error); // Handle errors by passing them to the next function
+  }
+});
+
 
 // We will use the REST API server to serve static web content to simplify deployment for demonstration purposes.
 STATIC_FILES &&
   server.get(
-    '/**/*',
+    '/*',
     restify.plugins.serveStatic({
-      default: 'index.html',
-      directory: join(__dirname, '..', STATIC_FILES)
+      directory: join(__dirname, '..', STATIC_FILES),
+      default: 'index.html'
+      
     })
   );
 
